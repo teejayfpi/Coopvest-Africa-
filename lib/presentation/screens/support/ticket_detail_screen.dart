@@ -40,7 +40,7 @@ class _TicketDetailScreenState extends ConsumerState<TicketDetailScreen> {
 
   Future<void> _loadTicketDetails() async {
     try {
-      final response = await ApiClient().getDio().get('/api/v1/tickets/${widget.ticketId}');
+      final response = await ApiClient().getDio().get('/tickets/${widget.ticketId}');
       if (response.data['success'] == true && mounted) {
         setState(() { _ticket = response.data['ticket']; _messages = response.data['messages'] ?? []; _isLoading = false; });
       } else {
@@ -55,7 +55,7 @@ class _TicketDetailScreenState extends ConsumerState<TicketDetailScreen> {
     if (_replyController.text.trim().isEmpty) return;
     setState(() => _isReplying = true);
     try {
-      final response = await ApiClient().getDio().post('/api/v1/tickets/${widget.ticketId}/messages', data: {'content': _replyController.text.trim()});
+      final response = await ApiClient().getDio().post('/tickets/${widget.ticketId}/messages', data: {'content': _replyController.text.trim()});
       if (response.data['success'] == true) { _replyController.clear(); _loadTicketDetails(); }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to send reply'), backgroundColor: CoopvestColors.error));
