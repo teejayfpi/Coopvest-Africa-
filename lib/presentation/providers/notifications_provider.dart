@@ -19,7 +19,7 @@ class NotificationRepository {
         '/notifications',
         queryParameters: {
           'page': page,
-          'page_size': pageSize,
+          'limit': pageSize,
         },
       );
 
@@ -31,53 +31,7 @@ class NotificationRepository {
       return notifications;
     } catch (e) {
       logger.e('Get notifications error: $e');
-      // Mock notifications for development
-      return [
-        AppNotification(
-          id: '1',
-          userId: 'user_1',
-          title: 'Loan Approved! 🎉',
-          body: 'Your loan application has been approved. Amount: ₦250,000',
-          type: 'loan_approved',
-          icon: 'celebration',
-          color: '#1B5E20',
-          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-          isRead: false,
-        ),
-        AppNotification(
-          id: '2',
-          userId: 'user_1',
-          title: 'Contribution Recorded',
-          body: 'Your contribution of ₦50,000 has been recorded successfully.',
-          type: 'contribution',
-          icon: 'savings',
-          color: '#0D47A1',
-          timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-          isRead: false,
-        ),
-        AppNotification(
-          id: '3',
-          userId: 'user_1',
-          title: 'Guarantor Request',
-          body: 'John Doe is requesting your guarantee for a ₦500,000 loan.',
-          type: 'guarantor_request',
-          icon: 'person_add',
-          color: '#F57C00',
-          timestamp: DateTime.now().subtract(const Duration(days: 1)),
-          isRead: true,
-        ),
-        AppNotification(
-          id: '4',
-          userId: 'user_1',
-          title: 'Loan Repayment Due',
-          body: 'Your loan repayment of ₦25,000 is due in 3 days.',
-          type: 'repayment_reminder',
-          icon: 'payment',
-          color: '#C62828',
-          timestamp: DateTime.now().subtract(const Duration(days: 2)),
-          isRead: true,
-        ),
-      ];
+      rethrow;
     }
   }
 

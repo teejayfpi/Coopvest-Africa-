@@ -28,16 +28,20 @@ class AppNotification extends Equatable {
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     return AppNotification(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      title: json['title'] as String,
-      body: json['body'] as String,
-      type: json['type'] as String,
+      id: (json['id'] ?? '').toString(),
+      userId: (json['user_id'] ?? json['profile_id'] ?? '').toString(),
+      title: (json['title'] ?? '') as String,
+      body: (json['body'] ?? json['message'] ?? '') as String,
+      type: (json['type'] ?? 'system') as String,
       icon: json['icon'] as String? ?? 'notifications',
       color: json['color'] as String? ?? '#1B5E20',
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      isRead: json['is_read'] as bool? ?? false,
-      metadata: json['metadata'] as Map<String, dynamic>?,
+      timestamp: DateTime.tryParse(
+            (json['timestamp'] ?? json['created_at'] ?? '').toString(),
+          ) ??
+          DateTime.now(),
+      isRead: json['is_read'] as bool? ?? json['read'] as bool? ?? false,
+      metadata: json['metadata'] as Map<String, dynamic>? ??
+          json['data'] as Map<String, dynamic>?,
     );
   }
 

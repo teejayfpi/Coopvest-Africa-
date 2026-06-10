@@ -25,6 +25,42 @@ function parsePaging(req) {
   return { page, limit };
 }
 
+// Type → icon/color mapping so the Flutter model gets usable display values.
+const TYPE_META = {
+  transaction:    { icon: 'swap_horiz',     color: '#1565C0' },
+  savings:        { icon: 'savings',        color: '#0D47A1' },
+  investment:     { icon: 'trending_up',    color: '#00695C' },
+  loan:           { icon: 'account_balance', color: '#4527A0' },
+  loan_approved:  { icon: 'celebration',    color: '#1B5E20' },
+  referral:       { icon: 'group_add',      color: '#EF6C00' },
+  kyc:            { icon: 'verified_user',  color: '#00838F' },
+  system:         { icon: 'notifications',  color: '#37474F' },
+  promotion:      { icon: 'local_offer',    color: '#AD1457' },
+  security:       { icon: 'security',       color: '#B71C1C' },
+  reminder:       { icon: 'alarm',          color: '#F57C00' },
+  guarantor_request: { icon: 'person_add',  color: '#F57C00' },
+  repayment_reminder: { icon: 'payment',    color: '#C62828' },
+  contribution:   { icon: 'savings',        color: '#0D47A1' },
+};
+const DEFAULT_META = { icon: 'notifications', color: '#1B5E20' };
+
+/** Normalise a notifications row to the shape the Flutter AppNotification model expects. */
+function serializeNotification(row) {
+  const meta = TYPE_META[row.type] || DEFAULT_META;
+  return {
+    id: String(row.id),
+    user_id: row.profile_id || '',
+    title: row.title || '',
+    body: row.message || row.body || '',
+    type: row.type || 'system',
+    icon: meta.icon,
+    color: meta.color,
+    timestamp: row.created_at,
+    is_read: row.is_read ?? row.read ?? false,
+    metadata: row.data || null,
+  };
+}
+
 // ── FCM Token Management ──────────────────────────────────────────────────────
 
 /**
@@ -106,6 +142,10 @@ router.delete('/fcm-token', async (req, res) => {
 
 /**
  * GET /api/v1/notifications
+ *
+ * Returns the member's own notifications AND broadcast notifications
+ * (profile_id IS NULL) sent by admins, serialised into the shape the
+ * Flutter AppNotification model expects.
  */
 router.get('/', async (req, res) => {
   try {
@@ -113,7 +153,7 @@ router.get('/', async (req, res) => {
     let q = supabase
       .from('notifications')
       .select('*', { count: 'exact' })
-      .eq('profile_id', req.user.id)
+      .or(`profile_id.eq.${req.user.id},profile_id.is.null`)
       .eq('archived', false)
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
@@ -122,7 +162,11 @@ router.get('/', async (req, res) => {
     if (req.query.read === 'false') q = q.eq('read', false);
     const { data, error, count } = await q;
     if (error) throw error;
-    res.json({ success: true, notifications: data || [], pagination: { page, limit, total: count || 0 } });
+    res.json({
+      success: true,
+      data: (data || []).map(serializeNotification),
+      pagination: { page, limit, total: count || 0 },
+    });
   } catch (err) {
     logger.error('notif list error:', err);
     res.status(500).json({ success: false, error: err.message });
@@ -137,7 +181,7 @@ router.get('/unread-count', async (req, res) => {
     const { count, error } = await supabase
       .from('notifications')
       .select('id', { count: 'exact', head: true })
-      .eq('profile_id', req.user.id)
+      .or(`profile_id.eq.${req.user.id},profile_id.is.null`)
       .eq('read', false)
       .eq('archived', false);
     if (error) throw error;
@@ -155,12 +199,12 @@ router.get('/unread', async (req, res) => {
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
-      .eq('profile_id', req.user.id)
+      .or(`profile_id.eq.${req.user.id},profile_id.is.null`)
       .eq('read', false)
       .eq('archived', false)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    res.json({ success: true, notifications: data || [] });
+    res.json({ success: true, data: (data || []).map(serializeNotification) });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -175,11 +219,11 @@ router.get('/:id', async (req, res) => {
       .from('notifications')
       .select('*')
       .eq('id', req.params.id)
-      .eq('profile_id', req.user.id)
+      .or(`profile_id.eq.${req.user.id},profile_id.is.null`)
       .maybeSingle();
     if (error) throw error;
     if (!data) return res.status(404).json({ success: false, error: 'Notification not found' });
-    res.json({ success: true, notification: data });
+    res.json({ success: true, notification: serializeNotification(data) });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
