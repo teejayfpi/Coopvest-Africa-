@@ -38,7 +38,7 @@ class _TicketListScreenState extends ConsumerState<TicketListScreen> {
     try {
       final params = <String, dynamic>{};
       if (_selectedStatus.isNotEmpty) params['status'] = _selectedStatus;
-      final response = await ApiClient().getDio().get('/api/v1/tickets', queryParameters: params);
+      final response = await ApiClient().getDio().get('/tickets', queryParameters: params);
       if (response.data['success'] == true && mounted) {
         setState(() { _tickets = response.data['tickets'] ?? []; });
       } else {
@@ -148,7 +148,7 @@ class _TicketListScreenState extends ConsumerState<TicketListScreen> {
         itemBuilder: (context, index) {
           final ticket = _tickets[index];
           return InkWell(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => TicketDetailScreen(ticketId: ticket['ticketId']))),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => TicketDetailScreen(ticketId: ticket['id'] ?? ticket['ticketId']))),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
