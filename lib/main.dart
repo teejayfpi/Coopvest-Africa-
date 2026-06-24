@@ -73,10 +73,10 @@ Future<void> _fcmBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const envString = String.fromEnvironment('ENV', defaultValue: 'dev');
+  const envString = String.fromEnvironment('ENV', defaultValue: 'prod');
   final env = Environment.values.firstWhere(
     (e) => e.toString().split('.').last == envString,
-    orElse: () => Environment.dev,
+    orElse: () => Environment.prod,
   );
   EnvironmentContext.setEnvironment(env);
 

@@ -103,11 +103,11 @@ jobs:
 
       - name: Build debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
-        run: flutter build apk --debug --no-tree-shake-icons --android-skip-build-dependency-validation
+        run: flutter build apk --debug --dart-define=ENV=prod --no-tree-shake-icons --android-skip-build-dependency-validation
 
       - name: Build release APK
         if: ${{ github.event.inputs.build_type != 'debug' }}
-        run: flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation
+        run: flutter build apk --release --dart-define=ENV=prod --no-tree-shake-icons --android-skip-build-dependency-validation
 
       - name: Locate built APK
         id: locate_apk

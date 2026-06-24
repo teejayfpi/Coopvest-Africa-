@@ -14,10 +14,10 @@ class EnvConfig {
   });
 
   static EnvConfig get dev => EnvConfig(
-        // Development: Replit dev server
+        // Development: local backend reached from the device/emulator.
         // Local Android emulator: use http://10.0.2.2:5000/api/v1
         // Local iOS simulator:    use http://localhost:5000/api/v1
-        apiBaseUrl: 'https://539e7840-36be-484d-bc70-5c1dfb597b95-00-35k57ivrof48y.picard.replit.dev/api/v1',
+        apiBaseUrl: 'http://10.0.2.2:5000/api/v1',
         appName: 'Coopvest Dev',
         enableLogging: true,
         useMockData: false,
