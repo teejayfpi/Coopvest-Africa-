@@ -46,6 +46,8 @@ const settingsRoutes = require('./routes/settings');
 const watchlistRoutes = require('./routes/watchlist');
 const analyticsRoutes = require('./routes/analytics');
 const adminApiRoutes = require('./routes/adminApi');
+const kycAdminRoutes = require('./routes/kycAdmin');
+const memberDetailRoutes = require('./routes/memberDetail');
 const guarantorRoutes = require('./routes/guarantor');
 const announcementRoutes = require('./routes/announcements');
 const contributionRoutes = require('./routes/contributions');
@@ -318,6 +320,8 @@ app.get('/api/auth/kyc/status', (req, res, next) => {
 // server. Authentication is via a shared secret (X-Service-Token) rather than
 // IP whitelisting, so the admin backend can be deployed anywhere.
 app.use('/api/v2/admin', adminApiRoutes);
+app.use('/api/v2/admin/kyc', kycAdminRoutes);
+app.use('/api/v2/admin/members', memberDetailRoutes);
 
 // In-app admin console endpoints (member JWT + IP whitelist)
 app.use('/api/v1/admin', adminIPWhitelist, adminRoutes);
