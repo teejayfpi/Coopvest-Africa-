@@ -378,6 +378,3 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- -----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_audit_logs_date_range ON public.audit_logs(created_at DESC) 
 WHERE created_at > NOW() - INTERVAL '90 days';
-
--- Commit
-COMMIT;
